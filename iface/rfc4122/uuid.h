@@ -8,7 +8,6 @@
 #include <cinttypes>
 #include <optional>
 #include <utility>
-#include <compare>
 #include <string>
 #include <string_view>
 #include <ostream>
@@ -364,25 +363,49 @@ namespace rfc4122
             __internal::byte_order::value_to_net_bytes<10,16>(byte, node);
         }
 
-        constexpr std::strong_ordering operator <=> (const uuid& other) const noexcept
+#ifndef __cpp_impl_three_way_comparison
+        constexpr bool operator == (const uuid& other) const noexcept
         {
-            std::strong_ordering temp = std::strong_ordering::equal;
-            const std::strong_ordering result =
-                  0 != (temp = byte[ 0] <=> other.byte[ 0]) ? temp
-                : 0 != (temp = byte[ 1] <=> other.byte[ 1]) ? temp
-                : 0 != (temp = byte[ 2] <=> other.byte[ 2]) ? temp
-                : 0 != (temp = byte[ 3] <=> other.byte[ 3]) ? temp
-                : 0 != (temp = byte[ 4] <=> other.byte[ 4]) ? temp
-                : 0 != (temp = byte[ 5] <=> other.byte[ 5]) ? temp
-                : 0 != (temp = byte[ 6] <=> other.byte[ 6]) ? temp
-                : 0 != (temp = byte[ 7] <=> other.byte[ 7]) ? temp
-                : 0 != (temp = byte[ 8] <=> other.byte[ 8]) ? temp
-                : 0 != (temp = byte[ 9] <=> other.byte[ 9]) ? temp
-                : 0 != (temp = byte[10] <=> other.byte[10]) ? temp
-                : 0 != (temp = byte[11] <=> other.byte[11]) ? temp
-                : std::strong_ordering::equal;
+            return byte[ 0] == other.byte[ 0]
+                && byte[ 1] == other.byte[ 1]
+                && byte[ 2] == other.byte[ 2]
+                && byte[ 3] == other.byte[ 3]
+                && byte[ 4] == other.byte[ 4]
+                && byte[ 5] == other.byte[ 5]
+                && byte[ 6] == other.byte[ 6]
+                && byte[ 7] == other.byte[ 7]
+                && byte[ 8] == other.byte[ 8]
+                && byte[ 9] == other.byte[ 9]
+                && byte[10] == other.byte[10]
+                && byte[11] == other.byte[11];
+        }
+
+        constexpr bool operator != (const uuid& other) const noexcept
+        {
+            return !(*this == other);
+        }
+#else
+        constexpr auto operator <=> (const uuid& other) const noexcept
+        {
+            constexpr auto equal = uint8_t{0} <=> uint8_t{0};
+            auto temp = equal;
+            const auto result =
+                  equal != (temp = byte[ 0] <=> other.byte[ 0]) ? temp
+                : equal != (temp = byte[ 1] <=> other.byte[ 1]) ? temp
+                : equal != (temp = byte[ 2] <=> other.byte[ 2]) ? temp
+                : equal != (temp = byte[ 3] <=> other.byte[ 3]) ? temp
+                : equal != (temp = byte[ 4] <=> other.byte[ 4]) ? temp
+                : equal != (temp = byte[ 5] <=> other.byte[ 5]) ? temp
+                : equal != (temp = byte[ 6] <=> other.byte[ 6]) ? temp
+                : equal != (temp = byte[ 7] <=> other.byte[ 7]) ? temp
+                : equal != (temp = byte[ 8] <=> other.byte[ 8]) ? temp
+                : equal != (temp = byte[ 9] <=> other.byte[ 9]) ? temp
+                : equal != (temp = byte[10] <=> other.byte[10]) ? temp
+                : equal != (temp = byte[11] <=> other.byte[11]) ? temp
+                : equal;
             return result;
         }
+#endif // __cpp_impl_three_way_comparison
 
         constexpr uint32_t part1() const noexcept {return __internal::byte_order::bytes_from_net_to_value(byte[0],byte[1],byte[2],byte[3]);}
         constexpr uint16_t part2() const noexcept {return __internal::byte_order::bytes_from_net_to_value(byte[4],byte[5]);}
