@@ -8,6 +8,7 @@
 #include <cinttypes>
 #include <optional>
 #include <utility>
+#include <compare>
 #include <string>
 #include <string_view>
 #include <ostream>
