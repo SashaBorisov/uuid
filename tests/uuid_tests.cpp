@@ -2,6 +2,7 @@
 // Copyright © 2021, Alexander Borisov, https://github.com/SashaBorisov/uuid
 //
 
+#include <cstring>
 #include <iostream>
 #include <iomanip>
 #include <sstream>
